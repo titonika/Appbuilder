@@ -4,10 +4,17 @@ import { TransactionForm, Transaction } from "./components/TransactionForm";
 import { TransactionList } from "./components/TransactionList";
 import { SpendingChart } from "./components/SpendingChart";
 import { IncomeChart } from "./components/IncomeChart";
+import { IncomeTable } from "./components/IncomeTable";
 import { CurrencyBalances } from "./components/CurrencyBalances";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
+import { MonthSelector } from "./components/MonthSelector";
+import { ThemeSwitcher, ThemeConfig } from "./components/ThemeSwitcher";
+import { PasswordProtection } from "./components/PasswordProtection";
+import { LoginScreen } from "./components/LoginScreen";
 import { CurrencyNote } from "./components/CurrencyNotes";
-import { DollarSign } from "lucide-react";
+import { GoogleSheetsSync } from "./components/GoogleSheetsSync";
+import { TrendingUp } from "lucide-react";
+import { Button } from "./components/ui/button";
 import { Language, DisplayCurrency, translations } from "./utils/translations";
 
 interface CurrencyBalance {
@@ -15,6 +22,18 @@ interface CurrencyBalance {
   eur: number;
   crypto: number;
 }
+
+interface MonthData {
+  transactions: Transaction[];
+  currencyBalances: CurrencyBalance;
+  currencyNotes: Record<string, CurrencyNote[]>;
+}
+
+// Helper to get current month key
+const getCurrentMonthKey = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+};
 
 // Default initial data
 const defaultTransactions: Transaction[] = [
@@ -25,43 +44,7 @@ const defaultTransactions: Transaction[] = [
     currency: "USD",
     category: "Salary",
     description: "Monthly salary",
-    date: new Date(2026, 0, 1).toISOString(),
-  },
-  {
-    id: "2",
-    type: "expense",
-    amount: 50,
-    currency: "USD",
-    category: "Food & Dining",
-    description: "Grocery shopping",
-    date: new Date(2026, 0, 3).toISOString(),
-  },
-  {
-    id: "3",
-    type: "expense",
-    amount: 120,
-    currency: "EUR",
-    category: "Bills & Utilities",
-    description: "Electric bill",
-    date: new Date(2026, 0, 5).toISOString(),
-  },
-  {
-    id: "4",
-    type: "expense",
-    amount: 30,
-    currency: "USD",
-    category: "Transportation",
-    description: "Gas",
-    date: new Date(2026, 0, 6).toISOString(),
-  },
-  {
-    id: "5",
-    type: "income",
-    amount: 500,
-    currency: "CRYPTO",
-    category: "Freelance",
-    description: "Web design project",
-    date: new Date(2026, 0, 7).toISOString(),
+    date: new Date().toISOString(),
   },
 ];
 
@@ -78,10 +61,16 @@ const defaultCurrencyNotes: Record<string, CurrencyNote[]> = {
 };
 
 export default function App() {
+  // Password protection
+  const [password, setPassword] = useState<string | null>(() => {
+    return localStorage.getItem('moneyManager_password');
+  });
+  const [isUnlocked, setIsUnlocked] = useState(!password);
+
   // Load saved data from localStorage
   const [language, setLanguage] = useState<Language>(() => {
     const saved = localStorage.getItem('moneyManager_language');
-    return (saved as Language) || 'en';
+    return (saved as Language) || 'ru';
   });
   
   const [displayCurrency, setDisplayCurrency] = useState<DisplayCurrency>(() => {
@@ -89,20 +78,68 @@ export default function App() {
     return (saved as DisplayCurrency) || 'USD';
   });
   
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem('moneyManager_transactions');
-    return saved ? JSON.parse(saved) : defaultTransactions;
-  });
-  
-  const [currencyBalances, setCurrencyBalances] = useState<CurrencyBalance>(() => {
-    const saved = localStorage.getItem('moneyManager_balances');
-    return saved ? JSON.parse(saved) : defaultBalances;
+  // Theme state
+  const [theme, setTheme] = useState<ThemeConfig>(() => {
+    const saved = localStorage.getItem('moneyManager_theme');
+    return saved ? JSON.parse(saved) : {
+      mode: 'light',
+      primaryColor: '#0ea5e9',
+      backgroundColor: '#f8fafc',
+      cardColor: '#ffffff',
+      textColor: '#0f172a',
+    };
   });
 
-  const [currencyNotes, setCurrencyNotes] = useState<Record<string, CurrencyNote[]>>(() => {
-    const saved = localStorage.getItem('moneyManager_currencyNotes');
-    return saved ? JSON.parse(saved) : defaultCurrencyNotes;
+  // Month history
+  const [currentMonth, setCurrentMonth] = useState<string>(getCurrentMonthKey());
+  const [monthHistory, setMonthHistory] = useState<Record<string, MonthData>>(() => {
+    const saved = localStorage.getItem('moneyManager_monthHistory');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    // Initialize with current month
+    return {
+      [getCurrentMonthKey()]: {
+        transactions: defaultTransactions,
+        currencyBalances: defaultBalances,
+        currencyNotes: defaultCurrencyNotes,
+      },
+    };
   });
+
+  // UI States
+  const [showIncomeTable, setShowIncomeTable] = useState(false);
+
+  // Get current month data
+  const currentMonthData = monthHistory[currentMonth] || {
+    transactions: [],
+    currencyBalances: defaultBalances,
+    currencyNotes: defaultCurrencyNotes,
+  };
+
+  // Available months
+  const availableMonths = Object.keys(monthHistory).sort();
+
+  // Automatically create new month if it doesn't exist
+  useEffect(() => {
+    const currentKey = getCurrentMonthKey();
+    if (!monthHistory[currentKey]) {
+      // Get last month's data
+      const lastMonthKey = availableMonths[availableMonths.length - 1];
+      const lastMonthData = monthHistory[lastMonthKey];
+      
+      // Create new month with balances from last month but reset transactions
+      setMonthHistory({
+        ...monthHistory,
+        [currentKey]: {
+          transactions: [],
+          currencyBalances: lastMonthData?.currencyBalances || defaultBalances,
+          currencyNotes: lastMonthData?.currencyNotes || defaultCurrencyNotes,
+        },
+      });
+      setCurrentMonth(currentKey);
+    }
+  }, []);
 
   // Save to localStorage whenever data changes
   useEffect(() => {
@@ -114,35 +151,109 @@ export default function App() {
   }, [displayCurrency]);
 
   useEffect(() => {
-    localStorage.setItem('moneyManager_transactions', JSON.stringify(transactions));
-  }, [transactions]);
+    localStorage.setItem('moneyManager_theme', JSON.stringify(theme));
+  }, [theme]);
 
   useEffect(() => {
-    localStorage.setItem('moneyManager_balances', JSON.stringify(currencyBalances));
-  }, [currencyBalances]);
+    localStorage.setItem('moneyManager_monthHistory', JSON.stringify(monthHistory));
+  }, [monthHistory]);
 
   useEffect(() => {
-    localStorage.setItem('moneyManager_currencyNotes', JSON.stringify(currencyNotes));
-  }, [currencyNotes]);
+    if (password) {
+      localStorage.setItem('moneyManager_password', password);
+    } else {
+      localStorage.removeItem('moneyManager_password');
+    }
+  }, [password]);
+
+  // Apply theme
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--color-primary', theme.primaryColor);
+    root.style.setProperty('--color-background', theme.backgroundColor);
+    root.style.setProperty('--color-card', theme.cardColor);
+    root.style.setProperty('--color-text', theme.textColor);
+    
+    if (theme.mode === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [theme]);
 
   const t = translations[language];
 
-  const handleAddTransaction = (
-    newTransaction: Omit<Transaction, "id">
-  ) => {
+  // Password handlers
+  const handleLogin = (inputPassword: string) => {
+    if (inputPassword === password) {
+      setIsUnlocked(true);
+      return true;
+    }
+    return false;
+  };
+
+  const handleSetPassword = (newPassword: string) => {
+    setPassword(newPassword);
+    setIsUnlocked(true);
+  };
+
+  const handleRemovePassword = () => {
+    setPassword(null);
+    setIsUnlocked(true);
+  };
+
+  // Month handlers
+  const handleMonthChange = (month: string) => {
+    setCurrentMonth(month);
+  };
+
+  const handleCreateMonth = (monthKey: string) => {
+    // Get the most recent month data or use defaults
+    const sortedMonths = Object.keys(monthHistory).sort();
+    const latestMonth = sortedMonths[sortedMonths.length - 1];
+    const latestData = monthHistory[latestMonth];
+    
+    setMonthHistory({
+      ...monthHistory,
+      [monthKey]: {
+        transactions: [],
+        currencyBalances: latestData?.currencyBalances || defaultBalances,
+        currencyNotes: latestData?.currencyNotes || defaultCurrencyNotes,
+      },
+    });
+  };
+
+  // Update current month data
+  const updateCurrentMonthData = (data: Partial<MonthData>) => {
+    setMonthHistory({
+      ...monthHistory,
+      [currentMonth]: {
+        ...currentMonthData,
+        ...data,
+      },
+    });
+  };
+
+  const handleAddTransaction = (newTransaction: Omit<Transaction, "id">) => {
     const transaction: Transaction = {
       ...newTransaction,
       id: Date.now().toString(),
     };
-    setTransactions([transaction, ...transactions]);
+    updateCurrentMonthData({
+      transactions: [transaction, ...currentMonthData.transactions],
+    });
   };
 
   const handleDeleteTransaction = (id: string) => {
-    setTransactions(transactions.filter((t) => t.id !== id));
+    updateCurrentMonthData({
+      transactions: currentMonthData.transactions.filter((t) => t.id !== id),
+    });
   };
   
   const handleUpdateBalances = (balances: CurrencyBalance) => {
-    setCurrencyBalances(balances);
+    updateCurrentMonthData({
+      currencyBalances: balances,
+    });
   };
   
   const handleLanguageChange = (newLanguage: Language) => {
@@ -158,58 +269,133 @@ export default function App() {
       ...note,
       id: Date.now().toString(),
     };
-    setCurrencyNotes({
-      ...currencyNotes,
-      [currency]: [...(currencyNotes[currency] || []), newNote],
+    updateCurrentMonthData({
+      currencyNotes: {
+        ...currentMonthData.currencyNotes,
+        [currency]: [...(currentMonthData.currencyNotes[currency] || []), newNote],
+      },
     });
   };
 
   const handleDeleteCurrencyNote = (currency: string, noteId: string) => {
-    setCurrencyNotes({
-      ...currencyNotes,
-      [currency]: (currencyNotes[currency] || []).filter((note) => note.id !== noteId),
+    updateCurrentMonthData({
+      currencyNotes: {
+        ...currentMonthData.currencyNotes,
+        [currency]: (currentMonthData.currencyNotes[currency] || []).filter((note) => note.id !== noteId),
+      },
     });
   };
 
+  // Google Sheets handlers
+  const handleImportFromSheets = (importedHistory: Record<string, MonthData>) => {
+    // Merge imported data with existing data
+    const mergedHistory = { ...monthHistory };
+    
+    Object.entries(importedHistory).forEach(([month, data]) => {
+      if (mergedHistory[month]) {
+        // Merge with existing month data
+        const confirm = window.confirm(
+          language === 'en'
+            ? `Month ${month} already exists. Overwrite?`
+            : language === 'uk'
+            ? `Місяць ${month} вже існує. Перезаписати?`
+            : `Месяц ${month} уже существует. Перезаписать?`
+        );
+        if (confirm) {
+          mergedHistory[month] = data;
+        }
+      } else {
+        mergedHistory[month] = data;
+      }
+    });
+    
+    setMonthHistory(mergedHistory);
+  };
+
+  // Show login screen if password is set and not unlocked
+  if (!isUnlocked) {
+    return <LoginScreen onLogin={handleLogin} language={language} />;
+  }
+
+  const dynamicStyles = {
+    backgroundColor: theme.backgroundColor,
+    color: theme.textColor,
+  };
+
+  const cardStyles = {
+    '--tw-bg-opacity': '1',
+    backgroundColor: theme.cardColor,
+  } as React.CSSProperties;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8" style={dynamicStyles}>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary rounded-lg p-3">
-              <DollarSign className="h-8 w-8 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold">{t.appName}</h1>
-              <p className="text-muted-foreground">
-                {t.appDescription}
-              </p>
-            </div>
+        <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+          <div className="flex-1">
+            <MonthSelector
+              currentMonth={currentMonth}
+              availableMonths={availableMonths}
+              onMonthChange={handleMonthChange}
+              onCreateMonth={handleCreateMonth}
+              language={language}
+              theme={theme}
+            />
           </div>
-          <LanguageSwitcher
-            currentLanguage={language}
-            currentCurrency={displayCurrency}
-            onLanguageChange={handleLanguageChange}
-            onCurrencyChange={handleCurrencyChange}
+          <div className="flex items-center gap-2 flex-wrap">
+            <ThemeSwitcher
+              currentTheme={theme}
+              onThemeChange={setTheme}
+              language={language}
+            />
+            <PasswordProtection
+              hasPassword={!!password}
+              onSetPassword={handleSetPassword}
+              onRemovePassword={handleRemovePassword}
+              language={language}
+            />
+            <LanguageSwitcher
+              currentLanguage={language}
+              currentCurrency={displayCurrency}
+              onLanguageChange={handleLanguageChange}
+              onCurrencyChange={handleCurrencyChange}
+            />
+          </div>
+        </div>
+
+        {/* Month Selector - moved to top */}
+        <div className="flex items-center justify-end flex-wrap gap-4">
+          <GoogleSheetsSync
+            monthHistory={monthHistory}
+            onImportData={handleImportFromSheets}
+            language={language}
           />
+          <Button
+            variant="outline"
+            onClick={() => setShowIncomeTable(true)}
+            className="gap-2"
+          >
+            <TrendingUp className="h-4 w-4" />
+            {t.viewAllIncome || "Все доходы"}
+          </Button>
         </div>
 
         {/* Currency Balances */}
         <CurrencyBalances
-          balances={currencyBalances}
+          balances={currentMonthData.currencyBalances}
           onUpdateBalances={handleUpdateBalances}
           language={language}
           displayCurrency={displayCurrency}
-          transactions={transactions}
-          currencyNotes={currencyNotes}
+          transactions={currentMonthData.transactions}
+          currencyNotes={currentMonthData.currencyNotes}
           onAddCurrencyNote={handleAddCurrencyNote}
           onDeleteCurrencyNote={handleDeleteCurrencyNote}
+          theme={theme}
         />
 
         {/* Dashboard Stats */}
         <Dashboard 
-          transactions={transactions} 
+          transactions={currentMonthData.transactions} 
           language={language}
           displayCurrency={displayCurrency}
         />
@@ -223,7 +409,7 @@ export default function App() {
               language={language}
             />
             <SpendingChart 
-              transactions={transactions}
+              transactions={currentMonthData.transactions}
               language={language}
             />
           </div>
@@ -231,17 +417,25 @@ export default function App() {
           {/* Right Column */}
           <div className="space-y-6">
             <TransactionList
-              transactions={transactions}
+              transactions={currentMonthData.transactions}
               onDeleteTransaction={handleDeleteTransaction}
               language={language}
             />
             <IncomeChart 
-              transactions={transactions}
+              transactions={currentMonthData.transactions}
               language={language}
             />
           </div>
         </div>
       </div>
+
+      {/* Income Table Dialog */}
+      <IncomeTable
+        isOpen={showIncomeTable}
+        onClose={() => setShowIncomeTable(false)}
+        transactions={currentMonthData.transactions}
+        language={language}
+      />
     </div>
   );
 }

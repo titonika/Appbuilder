@@ -17,7 +17,7 @@ export interface Transaction {
   id: string;
   type: "income" | "expense";
   amount: number;
-  currency: "USD" | "EUR" | "CRYPTO";
+  currency: "USD" | "EUR" | "CRYPTO" | "UAH";
   category: string;
   description: string;
   date: string;
@@ -31,7 +31,7 @@ interface TransactionFormProps {
 export function TransactionForm({ onAddTransaction, language }: TransactionFormProps) {
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState<"USD" | "EUR" | "CRYPTO">("USD");
+  const [currency, setCurrency] = useState<"USD" | "EUR" | "CRYPTO" | "UAH">("USD");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   
@@ -102,13 +102,14 @@ export function TransactionForm({ onAddTransaction, language }: TransactionFormP
 
             <div className="space-y-2">
               <Label>{t.currency || "Валюта"}</Label>
-              <Select value={currency} onValueChange={(val) => setCurrency(val as "USD" | "EUR" | "CRYPTO")}>
+              <Select value={currency} onValueChange={(val) => setCurrency(val as "USD" | "EUR" | "CRYPTO" | "UAH")}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="USD">USD ($)</SelectItem>
                   <SelectItem value="EUR">EUR (€)</SelectItem>
+                  <SelectItem value="UAH">UAH (₴)</SelectItem>
                   <SelectItem value="CRYPTO">CRYPTO</SelectItem>
                 </SelectContent>
               </Select>

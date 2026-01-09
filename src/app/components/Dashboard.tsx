@@ -14,6 +14,7 @@ const EXCHANGE_RATES = {
   USD: 1,
   EUR: 1.09,
   CRYPTO: 1,
+  UAH: 0.024,
 };
 
 const USD_TO_UAH = 41.5;
@@ -22,7 +23,7 @@ export function Dashboard({ transactions, language, displayCurrency }: Dashboard
   const t = translations[language];
   
   // Convert all transactions to USD first
-  const convertToUSD = (amount: number, currency: "USD" | "EUR" | "CRYPTO") => {
+  const convertToUSD = (amount: number, currency: "USD" | "EUR" | "CRYPTO" | "UAH") => {
     return amount * EXCHANGE_RATES[currency];
   };
   

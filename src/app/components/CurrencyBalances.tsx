@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { Language, DisplayCurrency, translations, formatCurrency } from "../utils/translations";
 import { CurrencyNotes, CurrencyNote } from "./CurrencyNotes";
 import { Transaction } from "./TransactionForm";
+import { ThemeConfig } from "./ThemeSwitcher";
 
 interface CurrencyBalance {
   usd: number;
@@ -23,6 +24,7 @@ interface CurrencyBalancesProps {
   currencyNotes: Record<string, CurrencyNote[]>;
   onAddCurrencyNote: (currency: string, note: Omit<CurrencyNote, "id">) => void;
   onDeleteCurrencyNote: (currency: string, noteId: string) => void;
+  theme?: ThemeConfig;
 }
 
 interface ExchangeRates {
@@ -40,6 +42,7 @@ export function CurrencyBalances({
   currencyNotes,
   onAddCurrencyNote,
   onDeleteCurrencyNote,
+  theme,
 }: CurrencyBalancesProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempBalances, setTempBalances] = useState(balances);
@@ -88,6 +91,7 @@ export function CurrencyBalances({
     .reduce((sum, t) => {
       if (t.currency === "USD") return sum + t.amount;
       if (t.currency === "EUR") return sum + t.amount * exchangeRates.EUR_TO_USD;
+      if (t.currency === "UAH") return sum + t.amount * 0.024;
       return sum + t.amount; // CRYPTO
     }, 0);
 
@@ -96,19 +100,23 @@ export function CurrencyBalances({
     .reduce((sum, t) => {
       if (t.currency === "USD") return sum + t.amount;
       if (t.currency === "EUR") return sum + t.amount * exchangeRates.EUR_TO_USD;
+      if (t.currency === "UAH") return sum + t.amount * 0.024;
       return sum + t.amount; // CRYPTO
     }, 0);
 
-  // Calculate currency notes spending
-  const usdNoteSpent = currencyNotes.usd?.reduce((sum, note) => sum + note.amount, 0) || 0;
-  const eurNoteSpent = currencyNotes.eur?.reduce((sum, note) => sum + note.amount, 0) || 0;
-  const cryptoNoteSpent = currencyNotes.crypto?.reduce((sum, note) => sum + note.amount, 0) || 0;
+  // Calculate currency notes balance (income - expense)
+  const usdNoteBalance = currencyNotes.usd?.reduce((sum, note) => 
+    sum + (note.type === "income" ? note.amount : -note.amount), 0) || 0;
+  const eurNoteBalance = currencyNotes.eur?.reduce((sum, note) => 
+    sum + (note.type === "income" ? note.amount : -note.amount), 0) || 0;
+  const cryptoNoteBalance = currencyNotes.crypto?.reduce((sum, note) => 
+    sum + (note.type === "income" ? note.amount : -note.amount), 0) || 0;
 
-  // Total in USD: balances + income - expenses - currency notes
+  // Total in USD: balances + currency notes balance + income - expenses
   const totalInUSD =
-    (balances.usd - usdNoteSpent) +
-    (balances.eur - eurNoteSpent) * exchangeRates.EUR_TO_USD +
-    (balances.crypto - cryptoNoteSpent) +
+    (balances.usd + usdNoteBalance) +
+    (balances.eur + eurNoteBalance) * exchangeRates.EUR_TO_USD +
+    (balances.crypto + cryptoNoteBalance) +
     totalIncome -
     totalExpenses;
 
@@ -132,42 +140,50 @@ export function CurrencyBalances({
       code: "USD",
       symbol: "$",
       value: balances.usd,
-      available: balances.usd - usdNoteSpent,
+      available: balances.usd + usdNoteBalance,
       icon: DollarSign,
       color: "text-green-600",
       bgColor: "bg-green-50",
       key: "usd" as keyof CurrencyBalance,
       decimals: 2,
+      rateToUAH: exchangeRates.USD_TO_UAH,
     },
     {
       name: t.euro,
       code: "EUR",
       symbol: "€",
       value: balances.eur,
-      available: balances.eur - eurNoteSpent,
+      available: balances.eur + eurNoteBalance,
       icon: Euro,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       key: "eur" as keyof CurrencyBalance,
       decimals: 2,
+      rateToUAH: exchangeRates.EUR_TO_UAH,
     },
     {
       name: t.cryptocurrency,
       code: "CRYPTO",
       symbol: "$",
       value: balances.crypto,
-      available: balances.crypto - cryptoNoteSpent,
+      available: balances.crypto + cryptoNoteBalance,
       icon: Coins,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       key: "crypto" as keyof CurrencyBalance,
       decimals: 2,
+      rateToUAH: exchangeRates.USD_TO_UAH, // Crypto usually in USD equivalent
     },
   ];
 
   return (
     <div className="space-y-4">
-      <Card className="bg-gradient-to-br from-purple-600 to-blue-600 text-white">
+      <Card 
+        className="text-white" 
+        style={{ 
+          background: theme?.portfolioCardColor || "linear-gradient(to bottom right, #9333ea, #2563eb)"
+        }}
+      >
         <CardHeader>
           <CardTitle className="text-white">{t.totalPortfolio}</CardTitle>
         </CardHeader>
@@ -232,8 +248,13 @@ export function CurrencyBalances({
                       {currency.available.toFixed(currency.decimals)}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {currency.code} {spent > 0 && `(${t.total}: ${currency.symbol}${spent.toFixed(2)})`}
+                      {currency.code}
                     </p>
+                    {!isLoadingRates && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        1 {currency.code} = ₴{currency.rateToUAH.toFixed(2)}
+                      </p>
+                    )}
                   </>
                 )}
               </CardContent>

@@ -75,7 +75,7 @@ export function TransactionList({
                       }`}
                     >
                       {transaction.type === "income" ? "+" : "-"}
-                      {transaction.currency === "EUR" ? "€" : transaction.currency === "CRYPTO" ? "$" : "$"}
+                      {transaction.currency === "EUR" ? "€" : transaction.currency === "UAH" ? "₴" : "$"}
                       {transaction.amount.toFixed(2)}
                       {transaction.currency !== "USD" && (
                         <span className="text-xs text-muted-foreground ml-1">

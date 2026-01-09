@@ -78,6 +78,68 @@ export const translations = {
     // Exchange Rate
     exchangeRate: 'Exchange rate',
     loading: 'Loading...',
+    
+    // Income Table
+    allIncomeTransactions: 'All Income Transactions',
+    viewAllIncome: 'View all income',
+    
+    // Month History
+    viewHistory: 'History',
+    selectMonth: 'Select Month',
+    selectMonthDesc: 'Select a month to view or edit',
+    current: 'Current',
+    
+    // Theme
+    lightTheme: 'Light Theme',
+    darkTheme: 'Dark Theme',
+    customTheme: 'Custom Theme',
+    customizeTheme: 'Customize Theme',
+    customizeThemeDesc: 'Customize interface colors to your preferences',
+    baseTheme: 'Base Theme',
+    light: 'Light',
+    dark: 'Dark',
+    primaryColor: 'Primary Color',
+    backgroundColor: 'Background Color',
+    cardColor: 'Card Color',
+    textColor: 'Text Color',
+    apply: 'Apply',
+    
+    // Password
+    password: 'Password',
+    setPassword: 'Set Password',
+    changePassword: 'Change Password',
+    removePassword: 'Remove Password',
+    setPasswordDesc: 'Set a password to protect your data',
+    changePasswordDesc: 'Change or remove current password',
+    newPassword: 'New Password',
+    confirmPassword: 'Confirm Password',
+    enterPassword: 'Enter password',
+    reenterPassword: 'Re-enter password',
+    passwordTooShort: 'Password must be at least 4 characters',
+    passwordsDontMatch: 'Passwords do not match',
+    incorrectPassword: 'Incorrect password',
+    enterPasswordToAccess: 'Enter password to access',
+    unlock: 'Unlock',
+    save: 'Save',
+    
+    // Month Management
+    createNewMonth: 'Create New Month',
+    createMonthDesc: 'Create a month to add data from past periods',
+    year: 'Year',
+    month: 'Month',
+    create: 'Create',
+    
+    // Google Sheets
+    googleSheets: 'Google Sheets',
+    googleSheetsSync: 'Google Sheets Synchronization',
+    googleSheetsSyncDesc: 'Export or import data from Google Sheets',
+    accessToken: 'Access Token',
+    spreadsheetId: 'Spreadsheet ID',
+    exportToSheets: 'Export',
+    importFromSheets: 'Import',
+    exporting: 'Exporting...',
+    importing: 'Importing...',
+    portfolioCardColor: 'Portfolio Card Color',
   },
   ru: {
     // Header
@@ -90,7 +152,7 @@ export const translations = {
     usDollar: 'Доллар США',
     euro: 'Евро',
     cryptocurrency: 'Криптовалюта',
-    updateBalances: 'О��новить Балансы',
+    updateBalances: 'Внести изменения',
     saveChanges: 'Сохранить Изменения',
     cancel: 'Отмена',
     enterAmount: 'Введите сумму',
@@ -155,6 +217,68 @@ export const translations = {
     // Exchange Rate
     exchangeRate: 'Курс валют',
     loading: 'Загрузка...',
+    
+    // Income Table
+    allIncomeTransactions: 'Все Доходные Транзакции',
+    viewAllIncome: 'Просмотреть все доходы',
+    
+    // Month History
+    viewHistory: 'История',
+    selectMonth: 'Выберите Месяц',
+    selectMonthDesc: 'Выберите месяц для просмотра или редактирования',
+    current: 'Текущий',
+    
+    // Theme
+    lightTheme: 'Светлая Тема',
+    darkTheme: 'Темная Тема',
+    customTheme: 'Пользовательская Тема',
+    customizeTheme: 'Настроить Тему',
+    customizeThemeDesc: 'Настройте цвета интерфейса по вашему усмотрению',
+    baseTheme: 'Базовая Тема',
+    light: 'Светлая',
+    dark: 'Темная',
+    primaryColor: 'Основной Цвет',
+    backgroundColor: 'Цвет Фона',
+    cardColor: 'Цвет Карточки',
+    textColor: 'Цвет Текста',
+    apply: 'Применить',
+    
+    // Password
+    password: 'Пароль',
+    setPassword: 'Установить Пароль',
+    changePassword: 'Изменить Пароль',
+    removePassword: 'Удалить Пароль',
+    setPasswordDesc: 'Установите пароль для защиты данных',
+    changePasswordDesc: 'Измените или удалите текущий пароль',
+    newPassword: 'Новый Пароль',
+    confirmPassword: 'Подтвердите Пароль',
+    enterPassword: 'Введите пароль',
+    reenterPassword: 'Повторите пароль',
+    passwordTooShort: 'Пароль должен быть не менее 4 символов',
+    passwordsDontMatch: 'Пароли не совпадают',
+    incorrectPassword: 'Неверный пароль',
+    enterPasswordToAccess: 'Введите пароль для доступа',
+    unlock: 'Разблокировать',
+    save: 'Сохранить',
+    
+    // Month Management
+    createNewMonth: 'Создать новый месяц',
+    createMonthDesc: 'Создайте месяц для добавления данных за прошлый период',
+    year: 'Год',
+    month: 'Месяц',
+    create: 'Создать',
+    
+    // Google Sheets
+    googleSheets: 'Google Таблицы',
+    googleSheetsSync: 'Синхронизация с Google Таблицами',
+    googleSheetsSyncDesc: 'Экспортируйте или импортируйте данные из Google Таблиц',
+    accessToken: 'Токен доступа',
+    spreadsheetId: 'ID таблицы',
+    exportToSheets: 'Экспортировать',
+    importFromSheets: 'Импортировать',
+    exporting: 'Экспорт...',
+    importing: 'Импорт...',
+    portfolioCardColor: 'Цвет карточки портфеля',
   },
   uk: {
     // Header
@@ -232,6 +356,68 @@ export const translations = {
     // Exchange Rate
     exchangeRate: 'Курс валют',
     loading: 'Завантаження...',
+    
+    // Income Table
+    allIncomeTransactions: 'Всі Доходні Транзакції',
+    viewAllIncome: 'Переглянути всі доходи',
+    
+    // Month History
+    viewHistory: 'Історія',
+    selectMonth: 'Виберіть Місяць',
+    selectMonthDesc: 'Виберіть місяць для перегляду або редагування',
+    current: 'Поточний',
+    
+    // Theme
+    lightTheme: 'Світла Тема',
+    darkTheme: 'Темна Тема',
+    customTheme: 'Користувацька Тема',
+    customizeTheme: 'Налаштувати Тему',
+    customizeThemeDesc: 'Налаштуйте кольори інтерфейсу за своїми бажаннями',
+    baseTheme: 'Базова Тема',
+    light: 'Світла',
+    dark: 'Темна',
+    primaryColor: 'Основний Колір',
+    backgroundColor: 'Колір Фону',
+    cardColor: 'Колір Карточки',
+    textColor: 'Колір Тексту',
+    apply: 'Застосувати',
+    
+    // Password
+    password: 'Пароль',
+    setPassword: 'Встановити Пароль',
+    changePassword: 'Змінити Пароль',
+    removePassword: 'Видалити Пароль',
+    setPasswordDesc: 'Встановіть пароль для захисту даних',
+    changePasswordDesc: 'Змініть або видаліть поточний пароль',
+    newPassword: 'Новий Пароль',
+    confirmPassword: 'Підтвердити Пароль',
+    enterPassword: 'Введіть пароль',
+    reenterPassword: 'Повторно введіть пароль',
+    passwordTooShort: 'Пароль повинен містити не менше 4 символів',
+    passwordsDontMatch: 'Паролі не збігаються',
+    incorrectPassword: 'Неправильний пароль',
+    enterPasswordToAccess: 'Введіть пароль для доступу',
+    unlock: 'Розблокувати',
+    save: 'Зберегти',
+    
+    // Month Management
+    createNewMonth: 'Створити новий місяць',
+    createMonthDesc: 'Створіть місяць для додавання даних за минулий період',
+    year: 'Рік',
+    month: 'Місяць',
+    create: 'Створити',
+    
+    // Google Sheets
+    googleSheets: 'Google Таблиці',
+    googleSheetsSync: 'Синхронізація з Google Таблицями',
+    googleSheetsSyncDesc: 'Експортуйте або імпортуйте дані з Google Таблиць',
+    accessToken: 'Токен доступу',
+    spreadsheetId: 'ID таблиці',
+    exportToSheets: 'Експортувати',
+    importFromSheets: 'Імпортувати',
+    exporting: 'Експорт...',
+    importing: 'Імпорт...',
+    portfolioCardColor: 'Колір картки портфеля',
   },
 };
 
